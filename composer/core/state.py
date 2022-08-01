@@ -107,6 +107,8 @@ class State(Serializable):
     Attributes:
         batch (types.Batch): The batch. This will be the entire batch during the :attr:`.Event.AFTER_DATALOADER`, or a
             microbatch between :attr:`.Event.BATCH_START` and :attr:`.Event.BATCH_END`.
+        train_metrics (Dict[str, MetricInterface]): TODO: docs
+        eval_metrics (Dict[str, Dict[str, MetricInterface]]):
         current_metrics (Dict[str, Dict[str, Any]]): The current computed metrics, organized by dataloader label
             and then by metric name. The train dataloader is labeled ``'train'``. If not using an :class:`.Evaluator`,
             the eval dataloader is labeled ``'eval'``. Otherwise, the evaluator label is used.
@@ -190,7 +192,9 @@ class State(Serializable):
             +-----------------------+-------------------------------------------------------------+
             | rank_zero_seed        | The seed of the rank zero process.                          |
             +-----------------------+-------------------------------------------------------------+
-            | current_metrics       | The current metrics.                                        |
+            | train_metrics         | The current training metrics                                |
+            +-----------------------+-------------------------------------------------------------+
+            | eval_metrics          | The current evaluation metrics                              |
             +-----------------------+-------------------------------------------------------------+
             | run_name              | The run name for training.                                  |
             +-----------------------+-------------------------------------------------------------+
@@ -295,11 +299,13 @@ class State(Serializable):
             'scaler',
             'timestamp',
             'rank_zero_seed',
-            'current_metrics',
+            'train_metrics'
+            'eval_metrics',
             'run_name',
         ]
 
-        self.current_metrics: Dict[str, Dict[str, Any]] = {}
+        self.train_metrics: Dict[str, MetricInterface] = {}
+        self.eval_metrics: Dict[str, Dict[str, MetricInterface]] = {}
 
     @property
     def seed(self):
