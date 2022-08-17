@@ -10,7 +10,6 @@ import warnings
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Sequence, Union, cast
 
 import torch
-import torch.nn
 import torch.nn.modules.utils
 from torch.nn.parallel import DistributedDataParallel
 from torch.optim import Optimizer
@@ -115,7 +114,6 @@ class State(Serializable):
 
             >>> trainer = Trainer(
             ...     ...,
-            ...     compute_training_metrics=True,
             ...     train_dataloader=train_dataloader,
             ...     eval_dataloader=eval_dataloader,
             ... )
@@ -134,7 +132,6 @@ class State(Serializable):
             >>> from composer.metrics.metrics import CrossEntropy
             >>> trainer = Trainer(
             ...     ...,
-            ...     compute_training_metrics=True,
             ...     train_dataloader=train_dataloader,
             ...     eval_dataloader=eval_dataloader,
             ... )
@@ -153,7 +150,6 @@ class State(Serializable):
             >>> from composer.core import Evaluator
             >>> trainer = Trainer(
             ...     ...,
-            ...     compute_training_metrics=True,
             ...     train_dataloader=train_dataloader,
             ...     eval_dataloader=[
             ...         Evaluator(label='eval1', dataloader=eval_1_dl, metric_names=['Accuracy']),
