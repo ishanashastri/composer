@@ -197,7 +197,7 @@ class PerClassAccuracy(Metric):
     def __init__(self, num_classes: int, dist_sync_on_step: bool = False):
         super().__init__(dist_sync_on_step=dist_sync_on_step)
         self.num_classes = num_classes
-        self.acc = Accuracy(num_classes=self.num_classes, average='None')
+        self.acc = Accuracy(num_classes=self.num_classes, average='none')
 
     def update(self, preds: Tensor, targets: Tensor) -> None:
         """Update the state with new predictions and targets."""
