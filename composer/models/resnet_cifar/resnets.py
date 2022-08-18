@@ -14,8 +14,10 @@ from typing import List, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchmetrics import Accuracy, ConfusionMatrix, MetricCollection, PrecisionRecallCurve
 from torchvision.models.resnet import BasicBlock
 
+from composer.metrics.metrics import PerClassAccuracy
 from composer.models import Initializer
 
 __all__ = ['ResNetCIFAR', 'ResNet9']
@@ -81,6 +83,14 @@ class ResNetCIFAR(nn.Module):
         for initializer in initializers:
             initializer = Initializer(initializer)
             self.apply(initializer.get_initializer())
+
+        self.train_metrics = Accuracy()
+        self.val_metrics = MetricCollection([
+            Accuracy(),
+            PerClassAccuracy(num_classes=10),
+            PrecisionRecallCurve(num_classes=10),
+            ConfusionMatrix(num_classes=10)
+        ])
 
     def forward(self, x: torch.Tensor):
         out = self.relu(self.bn(self.conv(x)))
