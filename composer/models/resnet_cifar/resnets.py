@@ -100,6 +100,9 @@ class ResNetCIFAR(nn.Module):
         out = self.fc(out)
         return out
 
+    def metrics(self, train: bool):
+        return self.train_metrics if train else self.val_metrics
+
     @staticmethod
     def is_valid_model_name(model_name: str):
         valid_model_names = [f'resnet_{layers}' for layers in (20, 56)]
