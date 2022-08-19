@@ -201,6 +201,8 @@ class PerClassAccuracy(Metric):
 
     def update(self, preds: Tensor, targets: Tensor) -> None:
         """Update the state with new predictions and targets."""
+        preds = torch.tensor(preds, dtype=torch.int32)
+        targets = torch.tensor(targets, dtype=torch.int32)
         self.acc.update(preds, targets)
 
     def compute(self):
