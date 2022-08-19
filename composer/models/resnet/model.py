@@ -114,7 +114,7 @@ def composer_resnet(model_name: str,
 
     # Create metrics for train and validation
     train_metrics = Accuracy()
-    val_metrics = MetricCollection([CrossEntropy(), Accuracy(), PerClassAccuracy(num_classes=10), Precision(num_classes=10, average='none'), Recall(num_classes=10, average='none'),
+    val_metrics = MetricCollection([CrossEntropy(), Accuracy(), PerClassAccuracy(num_classes=num_classes), Precision(num_classes=num_classes, average='none'), Recall(num_classes=num_classes, average='none'),
             ConfusionMatrix(num_classes=10)])
 
     # Apply Initializers to model
