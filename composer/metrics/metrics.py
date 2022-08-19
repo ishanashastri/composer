@@ -8,7 +8,7 @@ from typing import Callable, Tuple
 
 import torch
 from torch import Tensor
-from torchmetrics import Accuracy, Metric
+from torchmetrics import Accuracy, Metric, functional
 from torchmetrics.utilities.data import to_categorical
 
 from composer.loss import soft_cross_entropy
@@ -206,3 +206,28 @@ class PerClassAccuracy(Metric):
     def compute(self):
         """Aggregate state over all processes and compute the metric."""
         return self.acc.compute()
+
+class PrecisionRecall(Metric):
+    """Torchmetrics per class precision/recall implementation.
+
+    Args:
+        num_classes (int): Number of classes to return accuracy for
+        dist_sync_on_step (bool, optional): sync distributed metrics every step. Default: ``False``.
+    """
+
+    def __init__(self, num_classes: int, dist_sync_on_step: bool = False):
+        super().__init__(dist_sync_on_step=dist_sync_on_step)
+        self.num_classes = num_classes
+        self.preds = None
+        self.targets = None
+
+    def update(self, preds: Tensor, targets: Tensor) -> None:
+        """Update the state with new predictions and targets."""
+        self.preds = preds
+        self.targets = targets
+
+    def compute(self):
+        """Aggregate state over all processes and compute the metric."""
+        assert self.preds is not None
+        assert self.targets is not None
+        return functional.precision_recall(num_classes=self.num_classes, preds=self.preds, target=self.targets, average='none')

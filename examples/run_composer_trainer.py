@@ -17,6 +17,7 @@ import sys
 import tempfile
 import warnings
 
+import numpy
 from composer.loggers import LogLevel
 from composer.trainer.trainer_hparams import TrainerHparams
 from composer.utils import dist
@@ -73,6 +74,31 @@ def _main():
 
     trainer.fit()
 
+    tmpdir = tempfile.TemporaryDirectory()
+    tmpfile = f'{tmpdir.name}/resnet_results.txt'
+    # tmpfile = 'resnet_results.txt'
+    with open(tmpfile, 'w+') as f:
+        print(tmpfile)
+        for dataloader in trainer.state.eval_metrics:
+            for k, m in trainer.state.eval_metrics[dataloader].items():
+                if k == 'PrecisionRecallCurve':
+                    n_names = ['Precision', 'Recall', 'Thresholds']
+                    for n in range(len(m.compute())):
+                        f.write(f"\n{n_names[n]}:")
+                        print(f"\n{n_names[n]}:")
+                        for line in m.compute()[n]:
+                            f.write(f"\n{line.cpu().numpy()}")
+                            print(f"\n{line.cpu().numpy()}")
+                elif k == 'PrecisionRecall':
+                    n_names = ['Precision', 'Recall']
+                    i = 0
+                    for line in m.compute():
+                        f.write(f"\n{n_names[i]}: {line.cpu().numpy()}")
+                        print(f"\n{n_names[i]}: {line.cpu().numpy()}")
+                        i+=1
+                else:
+                    f.write(f"\n{k}: {m.compute().cpu().numpy()}")
+                    print(f"\n{k}: {m.compute().cpu().numpy()}")
 
 if __name__ == '__main__':
     _main()

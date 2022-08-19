@@ -14,7 +14,7 @@ from typing import List, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchmetrics import Accuracy, ConfusionMatrix, MetricCollection, PrecisionRecallCurve
+from torchmetrics import Accuracy, ConfusionMatrix, MetricCollection, Precision, Recall
 from torchvision.models.resnet import BasicBlock
 
 from composer.metrics.metrics import PerClassAccuracy
@@ -88,7 +88,9 @@ class ResNetCIFAR(nn.Module):
         self.val_metrics = MetricCollection([
             Accuracy(),
             PerClassAccuracy(num_classes=10),
-            PrecisionRecallCurve(num_classes=10),
+            # PrecisionRecallCurve(num_classes=10),
+            Precision(num_classes=10, average='none'),
+            Recall(num_classes=10, average='none'),
             ConfusionMatrix(num_classes=10)
         ])
 
