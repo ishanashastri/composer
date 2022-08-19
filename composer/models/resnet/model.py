@@ -9,13 +9,13 @@ from typing import List, Optional
 
 import torchvision
 from packaging import version
-from torchmetrics import ConfusionMatrix, MetricCollection, Precision, Recall
+from torchmetrics import ConfusionMatrix, MetricCollection
 from torchmetrics.classification import Accuracy
 from torchvision.models import resnet
 
 from composer.loss import loss_registry
 from composer.metrics import CrossEntropy
-from composer.metrics.metrics import PerClassAccuracy
+from composer.metrics.metrics import PerClassAccuracy, Precision, Recall
 from composer.models.initializers import Initializer
 from composer.models.tasks import ComposerClassifier
 
@@ -114,7 +114,7 @@ def composer_resnet(model_name: str,
 
     # Create metrics for train and validation
     train_metrics = Accuracy()
-    val_metrics = MetricCollection([CrossEntropy(), Accuracy(), PerClassAccuracy(num_classes=num_classes), Precision(num_classes=num_classes, average='none'), Recall(num_classes=num_classes, average='none'),
+    val_metrics = MetricCollection([CrossEntropy(), Accuracy(), PerClassAccuracy(num_classes=num_classes), Precision(num_classes=num_classes), Recall(num_classes=num_classes),
             ConfusionMatrix(num_classes=num_classes)])
 
     # Apply Initializers to model

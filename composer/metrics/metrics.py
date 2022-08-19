@@ -7,8 +7,11 @@ from __future__ import annotations
 from typing import Callable, Tuple
 
 import torch
+import torchmetrics
 from torch import Tensor
 from torchmetrics import Accuracy, Metric, functional
+from torchmetrics.functional.classification.accuracy import _accuracy_compute
+from torchmetrics.functional.classification.precision_recall import _precision_compute, _recall_compute
 from torchmetrics.utilities.data import to_categorical
 
 from composer.loss import soft_cross_entropy
@@ -201,13 +204,75 @@ class PerClassAccuracy(Metric):
 
     def update(self, preds: Tensor, targets: Tensor) -> None:
         """Update the state with new predictions and targets."""
-        preds = torch.tensor(preds, dtype=torch.int32)
-        targets = torch.tensor(targets, dtype=torch.int32)
         self.acc.update(preds, targets)
 
     def compute(self):
         """Aggregate state over all processes and compute the metric."""
-        return self.acc.compute()
+        # HACK preds has to be a float to store class information but these values need
+        # to be integers to properly calculate the metric
+        tp, fp, tn, fn = self.acc._get_final_stats()
+        tp = torch.tensor(tp, dtype=torch.long)
+        fp = torch.tensor(fp, dtype=torch.long)
+        tn = torch.tensor(tn, dtype=torch.long)
+        fn = torch.tensor(fn, dtype=torch.long)
+        return _accuracy_compute(tp, fp, tn, fn, self.acc.average, self.acc.mdmc_reduce, self.acc.mode)
+        # return self.acc.compute()
+
+class Precision(Metric):
+    """Torchmetrics per class precision implementation.
+
+    Args:
+        num_classes (int): Number of classes to return precision for
+        dist_sync_on_step (bool, optional): sync distributed metrics every step. Default: ``False``.
+    """
+
+    def __init__(self, num_classes: int, dist_sync_on_step: bool = False):
+        super().__init__(dist_sync_on_step=dist_sync_on_step)
+        self.num_classes = num_classes
+        self.prec = torchmetrics.Precision(num_classes=self.num_classes, average='none')
+
+
+    def update(self, preds: Tensor, targets: Tensor) -> None:
+        """Update the state with new predictions and targets."""
+        self.prec.update(preds, targets)
+
+    def compute(self):
+        """Aggregate state over all processes and compute the metric."""
+        # HACK preds has to be a float to store class information but these values need
+        # to be integers to properly calculate the metric
+        tp, fp, _, fn = self.prec._get_final_stats()
+        tp = torch.tensor(tp, dtype=torch.long)
+        fp = torch.tensor(fp, dtype=torch.long)
+        fn = torch.tensor(fn, dtype=torch.long)
+        return _precision_compute(tp, fp, fn, self.prec.average, self.prec.mdmc_reduce)
+
+class Recall(Metric):
+    """Torchmetrics per class recall implementation.
+
+    Args:
+        num_classes (int): Number of classes to return recall for
+        dist_sync_on_step (bool, optional): sync distributed metrics every step. Default: ``False``.
+    """
+
+    def __init__(self, num_classes: int, dist_sync_on_step: bool = False):
+        super().__init__(dist_sync_on_step=dist_sync_on_step)
+        self.num_classes = num_classes
+        self.rec = torchmetrics.Recall(num_classes=self.num_classes, average='none')
+
+
+    def update(self, preds: Tensor, targets: Tensor) -> None:
+        """Update the state with new predictions and targets."""
+        self.rec.update(preds, targets)
+
+    def compute(self):
+        """Aggregate state over all processes and compute the metric."""
+        # HACK preds has to be a float to store class information but these values need
+        # to be integers to properly calculate the metric
+        tp, fp, _, fn = self.rec._get_final_stats()
+        tp = torch.tensor(tp, dtype=torch.long)
+        fp = torch.tensor(fp, dtype=torch.long)
+        fn = torch.tensor(fn, dtype=torch.long)
+        return _recall_compute(tp, fp, fn, self.rec.average, self.rec.mdmc_reduce)
 
 class PrecisionRecall(Metric):
     """Torchmetrics per class precision/recall implementation.
