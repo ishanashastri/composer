@@ -210,13 +210,14 @@ class PerClassAccuracy(Metric):
         """Aggregate state over all processes and compute the metric."""
         # HACK preds has to be a float to store class information but these values need
         # to be integers to properly calculate the metric
-        tp, fp, tn, fn = self.acc._get_final_stats()
-        tp = torch.tensor(tp, dtype=torch.long)
-        fp = torch.tensor(fp, dtype=torch.long)
-        tn = torch.tensor(tn, dtype=torch.long)
-        fn = torch.tensor(fn, dtype=torch.long)
-        return _accuracy_compute(tp, fp, tn, fn, self.acc.average, self.acc.mdmc_reduce, self.acc.mode)
-        # return self.acc.compute()
+        # tp, fp, tn, fn = self.acc._get_final_stats()
+        # print(tp)
+        # tp = torch.tensor(tp, dtype=torch.long)
+        # fp = torch.tensor(fp, dtype=torch.long)
+        # tn = torch.tensor(tn, dtype=torch.long)
+        # fn = torch.tensor(fn, dtype=torch.long)
+        # return _accuracy_compute(tp, fp, tn, fn, self.acc.average, self.acc.mdmc_reduce, self.acc.mode)
+        return self.acc.compute()
 
 class Precision(Metric):
     """Torchmetrics per class precision implementation.

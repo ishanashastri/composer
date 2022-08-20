@@ -1431,8 +1431,8 @@ class Trainer:
 
         # HACK: DeepSpeed somehow manages to convert metric internal states to its own dtype. When
         # running with FP16, this tends to result in overflows. Let's assume FP32 is good enough.
-        for _, metric in metrics.items():
-            metric.set_dtype(torch.float32)  # type: ignore
+        # for _, metric in metrics.items():
+        #     metric.set_dtype(torch.float32)  # type: ignore
 
         return metrics
 
