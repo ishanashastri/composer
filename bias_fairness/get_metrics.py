@@ -170,16 +170,34 @@ def get_words():
     from super_classes import super_classes
     words = []
     sc = {}
-    for i, (_, a) in enumerate(reversed(sorted(zip(pca_base_average, list(raw_classes.values())))[:100])):
+    for i, (s, a) in enumerate(reversed(sorted(zip(pca_medium_average, list(raw_classes.values())))[:100])):
         # print(f"{c}: {a}")
         words.append(a)
-        if super_classes[i] not in sc:
-            sc[super_classes[i]] = 0
-        sc[super_classes[i]] += 1  #count number of times superclass appears
+        class_num = pca_medium_average.index(s)
+        if super_classes[class_num] not in sc:
+            sc[super_classes[class_num]] = 0
+        sc[super_classes[class_num]] += 1  #count number of times superclass appears
 
-    sc_sorted = [k for k, _ in reversed(sorted(sc.items(), key=lambda item: item[1]))]
-    print(sc_sorted)
-    return sc_sorted
+    sc_sorted_medium = [k for k, _ in reversed(sorted(sc.items(), key=lambda item: item[1]))]
+
+    words = []
+    sc = {}
+    for i, (s, a) in enumerate(reversed(sorted(zip(pca_base_average, list(raw_classes.values())))[:100])):
+        # print(f"{c}: {a}")
+        words.append(a)
+        class_num = pca_base_average.index(s)
+        if super_classes[class_num] not in sc:
+            sc[super_classes[class_num]] = 0
+        sc[super_classes[class_num]] += 1  #count number of times superclass appears
+
+    sc_sorted_base = [k for k, _ in reversed(sorted(sc.items(), key=lambda item: item[1]))]
+    
+    print("Base ----------------------- Medium")
+    for i in range(len(sc_sorted_base)):
+        print(f"{sc_sorted_base[i]} ---- {sc_sorted_medium[i]}")
+
+    
+    return sc_sorted_medium
     # print(f"\nClass {classes[list(l).index(min(l))]}: {min(l)}")
 
 
@@ -264,8 +282,8 @@ def get_error_per_class():
 
 
 # get_metrics()
-get_average_per_class()
+# get_average_per_class()
 # get_error_per_class()
 # write_to_csv()
-# print(get_words())
+get_words()
 # get_synsets()
